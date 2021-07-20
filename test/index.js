@@ -1,4 +1,4 @@
-const babel = require('babel-core')
+const babel = require('@babel/core')
 const chalk = require('chalk')
 const clear = require('clear')
 const diff = require('diff')
@@ -25,6 +25,7 @@ function runTests() {
 
 function runTest(dir) {
   const output = babel.transformFileSync(path.resolve(dir.path, 'actual.js'), {
+    babelrc: false,
     plugins: [pluginPath],
   })
 

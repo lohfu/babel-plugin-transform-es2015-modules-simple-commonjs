@@ -1,33 +1,32 @@
-require('better-log/install')
-const template = require('babel-template')
+const template = require('@babel/template').default
 
 const buildRequire = template(`
-  require($0);
+  require(SOURCE);
 `)
 
 const buildRequireDefault = template(`
-  require($0).default;
+  require(SOURCE).default;
 `)
 
 const buildExportsAssignment = template(`
-  module.exports = $0;
+  module.exports = EXPORT;
 `)
 
 const buildNamedExportsAssignment = template(`
-  exports.$0 = $1;
+  exports.NAME = EXPORT;
 `)
 
 const buildExportAll = template(`
-  for(var $1 in $0) {
-    if ($1 !== "default") {
-      exports[$1] = $0[$1];
+  for(var NAME in EXPORTS) {
+    if (NAME !== "default") {
+      exports[NAME] = EXPORTS[NAME];
     }
   }
 `)
 
 module.exports = function ({ types: t }) {
   return {
-    inherits: require('babel-plugin-transform-strict-mode'),
+    inherits: require('@babel/plugin-transform-strict-mode').default,
     visitor: {
       Program: {
         exit(path) {
@@ -51,7 +50,7 @@ module.exports = function ({ types: t }) {
 
             sources.push(
               t.variableDeclaration('var', [
-                t.variableDeclarator(importedID, buildRequire(path.node.source).expression),
+                t.variableDeclarator(importedID, buildRequire({ SOURCE: path.node.source }).expression),
               ]),
             )
 
@@ -65,26 +64,29 @@ module.exports = function ({ types: t }) {
               const declaration = path.get('declaration')
               if (declaration.type === 'FunctionDeclaration') {
                 if (declaration.node.id) {
-                  path.replaceWithMultiple([buildExportsAssignment(declaration.node.id), declaration.node])
+                  path.replaceWithMultiple([buildExportsAssignment({ EXPORT: declaration.node.id }), declaration.node])
                 } else {
-                  path.replaceWith(buildExportsAssignment(t.toExpression(declaration.node)))
+                  path.replaceWith(buildExportsAssignment({ EXPORT: t.toExpression(declaration.node) }))
                 }
               } else {
-                path.replaceWith(buildExportsAssignment(declaration.node))
+                path.replaceWith(buildExportsAssignment({ EXPORT: t.toExpression(declaration.node) }))
               }
               continue
             }
 
             if (path.isImportDeclaration()) {
               const specifiers = path.node.specifiers
-              const is2015Compatible = path.node.source.value.match(/babel-runtime[\\/]/)
+              const is2015Compatible = path.node.source.value.match(/@babel\/runtime[\\/]/)
               if (specifiers.length === 0) {
-                anonymousSources.push(buildRequire(path.node.source))
+                anonymousSources.push(buildRequire({ SOURCE: path.node.source }))
               } else if (specifiers.length === 1 && specifiers[0].type === 'ImportDefaultSpecifier') {
                 const template = is2015Compatible ? buildRequireDefault : buildRequire
                 sources.push(
                   t.variableDeclaration('var', [
-                    t.variableDeclarator(t.identifier(specifiers[0].local.name), template(path.node.source).expression),
+                    t.variableDeclarator(
+                      t.identifier(specifiers[0].local.name),
+                      template({ SOURCE: path.node.source }).expression,
+                    ),
                   ]),
                 )
               } else {
@@ -123,10 +125,10 @@ module.exports = function ({ types: t }) {
                 hasNamedExports = true
                 if (declaration.isFunctionDeclaration()) {
                   const id = declaration.node.id
-                  path.replaceWithMultiple([declaration.node, buildNamedExportsAssignment(id, id)])
+                  path.replaceWithMultiple([declaration.node, buildNamedExportsAssignment({ NAME: id, EXPORT: id })])
                 } else if (declaration.isClassDeclaration()) {
                   const id = declaration.node.id
-                  path.replaceWithMultiple([declaration.node, buildNamedExportsAssignment(id, id)])
+                  path.replaceWithMultiple([declaration.node, buildNamedExportsAssignment({ NAME: id, EXPORT: id })])
                 } else if (declaration.isVariableDeclaration()) {
                   const declarators = declaration.get('declarations')
                   for (const decl of declarators) {
@@ -138,7 +140,7 @@ module.exports = function ({ types: t }) {
                     }
 
                     if (id.isIdentifier()) {
-                      init.replaceWith(buildNamedExportsAssignment(id.node, init.node).expression)
+                      init.replaceWith(buildNamedExportsAssignment({ NAME: id.node, EXPORT: init.node }).expression)
                     }
                   }
                   path.replaceWith(declaration.node)
@@ -174,10 +176,10 @@ module.exports = function ({ types: t }) {
                     // if exporting to default, its module.exports
                     if (specifier.node.exported.name === 'default') {
                       hasDefaultExport = true
-                      nodes.push(buildExportsAssignment(local))
+                      nodes.push(buildExportsAssignment({ EXPORT: local }))
                     } else {
                       hasNamedExports = true
-                      nodes.push(buildNamedExportsAssignment(specifier.node.exported, local))
+                      nodes.push(buildNamedExportsAssignment({ NAME: specifier.node.exported, EXPORT: local }))
                     }
                   }
                 }
@@ -192,7 +194,7 @@ module.exports = function ({ types: t }) {
               const importedID = addSource(path)
               const keyName = path.scope.generateUidIdentifier(importedID.name + '_key')
 
-              path.replaceWithMultiple(buildExportAll(importedID, keyName))
+              path.replaceWithMultiple(buildExportAll({ EXPORTS: importedID, NAME: keyName }))
             }
           }
 
