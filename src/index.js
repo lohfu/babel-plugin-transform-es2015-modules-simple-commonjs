@@ -1,5 +1,5 @@
-import 'better-log/install'
-import template from 'babel-template'
+require('better-log/install')
+const template = require('babel-template')
 
 const buildRequire = template(`
   require($0);

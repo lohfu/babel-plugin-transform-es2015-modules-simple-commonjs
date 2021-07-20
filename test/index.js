@@ -5,8 +5,6 @@ const diff = require('diff')
 const fs = require('fs')
 const path = require('path')
 
-require('babel-register')
-
 const pluginPath = require.resolve('../src')
 
 function runTests() {
