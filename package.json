@@ -21,13 +21,22 @@
     "chalk": "^1.1.0",
     "clear": "0.0.1",
     "diff": "^1.4.0",
+    "eslint": "^7.31.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.23.4",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "prettier": "^2.3.2",
     "watch": "^0.16.0"
   },
   "scripts": {
+    "format": "prettier --write .",
+    "lint": "eslint --ext .cjs,.js,.mjs .",
+    "prepublish": "npm run lint && npm test && npm run release",
     "release": "babel src --out-dir dist",
     "test": "node test",
-    "watch": "node test --watch",
-    "prepublish": "npm test && npm run release"
+    "watch": "node test --watch"
   },
   "keywords": [
     "babel-plugin",

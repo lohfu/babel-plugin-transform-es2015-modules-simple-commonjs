@@ -1,77 +1,77 @@
-var assert = require('assert');
-var babel = require('babel-core');
-var chalk = require('chalk');
-var clear = require('clear');
-var diff = require('diff');
-var fs = require('fs');
-var path = require('path');
+const babel = require('babel-core')
+const chalk = require('chalk')
+const clear = require('clear')
+const diff = require('diff')
+const fs = require('fs')
+const path = require('path')
 
-require('babel-register');
+require('babel-register')
 
-var pluginPath = require.resolve('../src');
+const pluginPath = require.resolve('../src')
 
 function runTests() {
-	var testsPath = __dirname + '/fixtures/';
+  const testsPath = path.resolve(__dirname, 'fixtures')
 
-	fs.readdirSync(testsPath).map(function(item) {
-		return {
-			path: path.join(testsPath, item),
-			name: item,
-		};
-	}).filter(function(item) {
-		return fs.statSync(item.path).isDirectory();
-	}).forEach(runTest);
+  fs.readdirSync(testsPath)
+    .map(function (item) {
+      return {
+        path: path.join(testsPath, item),
+        name: item,
+      }
+    })
+    .filter(function (item) {
+      return fs.statSync(item.path).isDirectory()
+    })
+    .forEach(runTest)
 }
 
 function runTest(dir) {
-	var output = babel.transformFileSync(dir.path + '/actual.js', {
-		plugins: [pluginPath]
-	});
+  const output = babel.transformFileSync(path.resolve(dir.path, 'actual.js'), {
+    plugins: [pluginPath],
+  })
 
-	var expected = fs.readFileSync(dir.path + '/expected.js', 'utf-8');
+  const expected = fs.readFileSync(path.resolve(dir.path, 'expected.js'), 'utf-8')
 
-	function normalizeLines(str) {
-		return str.replace(/\r\n/g, '\n').trimRight();
-	}
+  function normalizeLines(str) {
+    return str.replace(/\r\n/g, '\n').trimRight()
+  }
 
-	var normalizedOutput = normalizeLines(output.code);
-	var normalizedExpected = normalizeLines(expected);
+  const normalizedOutput = normalizeLines(output.code)
+  const normalizedExpected = normalizeLines(expected)
 
-	if (normalizedOutput === normalizedExpected) {
-		process.stdout.write(chalk.bgWhite.black(dir.name) + ' ' + chalk.green('OK'));
-	} else {
-		process.stdout.write(chalk.bgWhite.black(dir.name) + ' ' + chalk.red('Different'));
-		process.stdout.write('\n\n');
+  if (normalizedOutput === normalizedExpected) {
+    process.stdout.write(chalk.bgWhite.black(dir.name) + ' ' + chalk.green('OK'))
+  } else {
+    process.stdout.write(chalk.bgWhite.black(dir.name) + ' ' + chalk.red('Different'))
+    process.stdout.write('\n\n')
 
-		diff.diffLines(normalizedOutput, normalizedExpected)
-		.forEach(function (part) {
-			var value = part.value.replace(/\t/g, '»   ').replace(/^\n$/, '↵\n');
-			if (part.added) {
-				value = chalk.green(value);
-			} else if (part.removed) {
-				value = chalk.red(value);
-			}
+    diff.diffLines(normalizedOutput, normalizedExpected).forEach(function (part) {
+      let value = part.value.replace(/\t/g, '»   ').replace(/^\n$/, '↵\n')
+      if (part.added) {
+        value = chalk.green(value)
+      } else if (part.removed) {
+        value = chalk.red(value)
+      }
 
+      process.stdout.write(value)
+    })
+  }
 
-			process.stdout.write(value);
-		});
-	}
-
-	process.stdout.write('\n\n\n');
+  process.stdout.write('\n\n\n')
 }
 
 if (process.argv.indexOf('--watch') >= 0) {
-	require('watch').watchTree(__dirname + '/..', function () {
-		delete require.cache[pluginPath];
-		clear();
-		console.log('Press Ctrl+C to stop watching...');
-		console.log('================================');
-		try {
-			runTests();
-		} catch (e) {
-			console.error(chalk.magenta(e.stack));
-		}
-	});
+  require('watch').watchTree(path.resolve(__dirname, '..'), function () {
+    delete require.cache[pluginPath]
+    clear()
+    process.stdout.write('Press Ctrl+C to stop watching...\n')
+    process.stdout.write('================================\n')
+    try {
+      runTests()
+    } catch (e) {
+      console.error(chalk.magenta(e.stack))
+    }
+  })
 } else {
-	runTests();
+  runTests()
 }

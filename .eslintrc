@@ -1,0 +1,18 @@
+{
+  "root": true,
+
+  "extends": ["standard", "prettier"],
+
+  "rules": {
+    "no-console": [2, { "allow": ["info", "warn", "error"] }],
+    "no-unused-vars": [2, "all"],
+    "no-var": 2,
+    "prefer-const": 2,
+    "operator-linebreak": [2, "before"],
+    "import/no-unresolved": 2
+  },
+
+  "env": {
+    "node": true
+  }
+}
