@@ -64,7 +64,7 @@ module.exports = function ({ types: t }) {
               const declaration = path.get('declaration')
               if (declaration.type === 'FunctionDeclaration') {
                 if (declaration.node.id) {
-                  path.replaceWithMultiple([buildExportsAssignment({ EXPORT: declaration.node.id }), declaration.node])
+                  path.replaceWithMultiple([declaration.node, buildExportsAssignment({ EXPORT: declaration.node.id })])
                 } else {
                   path.replaceWith(buildExportsAssignment({ EXPORT: t.toExpression(declaration.node) }))
                 }

@@ -3,10 +3,10 @@
 var a = require('/path/to/a');
 
 doSomething();
-module.exports = x;
 
 function x() {
   hey();
 }
 
+module.exports = x;
 doSomethingElse();
