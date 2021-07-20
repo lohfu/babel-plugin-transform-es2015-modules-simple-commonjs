@@ -1,4 +1,4 @@
-# babel-plugin-transform-es2015-modules-simple-commonjs [![npm version](https://badge.fury.io/js/babel-plugin-transform-es2015-modules-simple-commonjs.svg)](https://badge.fury.io/js/babel-plugin-transform-es2015-modules-simple-commonjs)
+# babel-plugin-transform-modules-simple-commonjs [![npm version](https://badge.fury.io/js/babel-plugin-transform-modules-simple-commonjs.svg)](https://badge.fury.io/js/babel-plugin-transform-modules-simple-commonjs)
 
 Simple transformer for ECMAScript 2015 modules (CommonJS).
 
@@ -71,7 +71,7 @@ You may want to use a linter (such as eslint with eslint-plugin-import) in order
 ## Installation
 
 ```sh
-$ npm install --save-dev babel-plugin-transform-es2015-modules-simple-commonjs
+$ npm install --save-dev babel-plugin-transform-modules-simple-commonjs
 ```
 
 ## Usage
@@ -82,7 +82,7 @@ $ npm install --save-dev babel-plugin-transform-es2015-modules-simple-commonjs
 
 ```json
 {
-  "plugins": ["transform-es2015-modules-simple-commonjs"]
+  "plugins": ["transform-modules-simple-commonjs"]
 }
 ```
 
@@ -90,10 +90,10 @@ $ npm install --save-dev babel-plugin-transform-es2015-modules-simple-commonjs
 
 ```js
 require('babel').transform('code', {
-  plugins: ['transform-es2015-modules-simple-commonjs']
+  plugins: ['transform-modules-simple-commonjs']
 });
 ```
 
-### Usage with other ES2015 plugins
+### Usage with other plugins
 
-This replaces the functionality in `transform-es2015-modules-commonjs`, but you may be better off using this with the `babel-preset-es2015-webpack` preset, which takes the es2015 preset and removes the commonjs transform.
+This replaces the functionality in `@babel/plugin-transform-modules-commonjs`, which needs to be disabled when using this plugin.
