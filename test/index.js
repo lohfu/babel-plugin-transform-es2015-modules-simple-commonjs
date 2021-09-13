@@ -23,10 +23,20 @@ function runTests() {
     .forEach(runTest)
 }
 
+function loadOpts(dir) {
+  const optsPath = path.resolve(dir.path, 'opts.json')
+  if (fs.existsSync(optsPath)) {
+    return JSON.parse(fs.readFileSync(optsPath, 'utf8'))
+  } else {
+    return { opts: {}, plugins: [] };
+  }
+}
+
 function runTest(dir) {
+  const opts = loadOpts(dir);
   const output = babel.transformFileSync(path.resolve(dir.path, 'actual.js'), {
     babelrc: false,
-    plugins: [pluginPath],
+    plugins: [[pluginPath, opts.opts]].concat(opts.plugins),
   })
 
   const expected = fs.readFileSync(path.resolve(dir.path, 'expected.js'), 'utf-8')

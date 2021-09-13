@@ -29,7 +29,7 @@ module.exports = function ({ types: t }) {
     inherits: require('@babel/plugin-transform-strict-mode').default,
     visitor: {
       Program: {
-        exit(path) {
+        exit(path, state) {
           const sources = []
           const anonymousSources = []
           const { scope } = path
@@ -58,7 +58,7 @@ module.exports = function ({ types: t }) {
           }
 
           for (const path of body) {
-            if (path.isExportDefaultDeclaration()) {
+            if (path.isExportDefaultDeclaration() && state.opts.exportDefault !== false) {
               hasDefaultExport = true
               lastExportPath = path
               const declaration = path.get('declaration')
@@ -74,7 +74,7 @@ module.exports = function ({ types: t }) {
               continue
             }
 
-            if (path.isImportDeclaration()) {
+            if (path.isImportDeclaration() && state.opts.import !== false) {
               const specifiers = path.node.specifiers
               const is2015Compatible = path.node.source.value.match(/@babel\/runtime[\\/]/)
               if (specifiers.length === 0) {
@@ -116,7 +116,7 @@ module.exports = function ({ types: t }) {
               continue
             }
 
-            if (path.isExportNamedDeclaration()) {
+            if (path.isExportNamedDeclaration() && state.opts.exportNamed !== false) {
               lastExportPath = path
               const declaration = path.get('declaration')
 
@@ -189,7 +189,7 @@ module.exports = function ({ types: t }) {
               continue
             }
 
-            if (path.isExportAllDeclaration()) {
+            if (path.isExportAllDeclaration() && state.opts.exportAll !== false) {
               // export * from 'a';
               const importedID = addSource(path)
               const keyName = path.scope.generateUidIdentifier(importedID.name + '_key')
