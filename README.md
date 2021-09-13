@@ -94,6 +94,25 @@ require('babel').transform('code', {
 });
 ```
 
+### Options
+
+The various transforms done by this module can be disabled individually.  This is especially useful if you need this module to convert `import` statements into reasonable commonjs statements, but require the default Babel behavior for exported functions (which get hoisted to the beginning of the scope, thus always exporting correctly even if circular dependencies exist - for this set the `exportNamed` option to `false`).
+
+**.babelrc example: disable everything**
+
+```json
+{
+  "plugins": [
+    ["transform-modules-simple-commonjs", {
+      "exportNamed": false,
+      "exportDefault": false,
+      "exportAll": false,
+      "import": false
+    }]
+  ]
+}
+```
+
 ### Usage with other plugins
 
-This replaces the functionality in `@babel/plugin-transform-modules-commonjs`, which needs to be disabled when using this plugin.
+By default, this replaces the functionality in `@babel/plugin-transform-modules-commonjs`, which needs to be disabled or after this plugin.
