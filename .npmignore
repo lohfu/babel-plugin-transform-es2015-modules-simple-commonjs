@@ -4,4 +4,7 @@ node_modules
 *.log
 .directory
 .editorconfig
-
+.eslintrc
+.eslintignore
+.prettierignore
+prettier.config.js
